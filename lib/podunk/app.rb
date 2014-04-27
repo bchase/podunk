@@ -4,6 +4,13 @@ require 'podunk/app/router'
 module Podunk
   class App
     include Router
+    route do
+      get '/favicon.ico' => 'favicon'
+    end
+
+    def favicon
+      [ '' ]
+    end
 
     def body
       [ 'Welcome to Podunk!' ]
