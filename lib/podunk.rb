@@ -1,5 +1,5 @@
-require "podunk/version"
+require 'podunk/version'
+require 'podunk/app'
 
 module Podunk
-  # Your code goes here...
 end
