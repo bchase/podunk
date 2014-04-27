@@ -1,7 +1,8 @@
 module Podunk::HTTP
   class Response < Array
-    def initialize(body)
-      body = body.empty? ? self.body : body
+    attr_reader :body
+    def initialize(body_value)
+      set_body(body_value)
       super [ status, headers, body ]
     end
 
@@ -13,8 +14,11 @@ module Podunk::HTTP
       { 'Content-Type' => 'text/text' }
     end
 
-    def body
-      [ ]
+  private
+    def set_body(body)
+      body  = body.empty? ? [ '' ] : body
+      body  = body.respond_to?(:each) ? body : [ body ]
+      @body = body
     end
   end
 end
