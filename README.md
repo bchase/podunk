@@ -40,6 +40,7 @@ end
 
 ```ruby
 ### config.ru ###
+
 require './app.rb'
 
 run Application.new
