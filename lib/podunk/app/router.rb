@@ -15,7 +15,7 @@ module Podunk
 
       def render_body_for_route
         body = self.send body_method_for_route
-        body = [ body ] unless body.respond_to? :each
+        body.respond_to?(:each) ? body : [ body ]
       end
 
       module ClassMethods
