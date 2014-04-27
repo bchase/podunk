@@ -22,6 +22,8 @@ Inside, you'll find:
 2. simple routing for `GET` requests (all right!)
 3. thrilling plaintext body
 
+That's about it!
+
 ## Usage
 
 ```ruby
