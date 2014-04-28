@@ -11,7 +11,7 @@ module Podunk::HTTP
     end
 
     def headers
-      { 'Content-Type' => 'text/text' }
+      { 'Content-Type' => 'text/html' }
     end
 
   private
