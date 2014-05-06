@@ -11,10 +11,21 @@ class Application < Podunk::App
       @jokes << self
     end
 
+    def id
+      object_id
+    end
+
+    def self.find(id)
+      all.find {|joke| joke.id == id}
+    end
+
     def self.all
       @@jokes
     end
   end
+
+  Joke.new "A book just fell on my head... I only have my shelf to blame."
+  Joke.new "Bakers trade bread recipes on a knead-to-know basis."
 
   route do
     get '/'          => 'home'
