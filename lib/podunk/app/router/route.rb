@@ -4,7 +4,13 @@ module Podunk
       class Route
         Match = Struct.new(:method, :params)
 
-        @@routes = Hash.new {|h,k| h[k]=[]}
+        def self.init_routes!
+          @@routes = Hash.new {|h,k| h[k]=[]}
+        end
+        def self.routes
+          @@routes
+        end
+        init_routes!
 
         attr_accessor :verb, :path, :method
         def initialize(verb, path, method)
@@ -13,78 +19,39 @@ module Podunk
           @@routes[verb] << self
         end
 
-        def parts
-          @parts ||= @path.split '/'
-        end
-
-        def degree
-          parts.count
-        end
-
         def self.for(verb, path)
           routes = @@routes[verb]
-
-          return if routes.empty?
-
-          matches = routes.map {|route| 
-            route.match(path)
-          }.reject(&:nil?)
-
-          if !routes.empty?
-
-            require 'pry'; binding.pry
-            p_matches = matches.reject {|match| match.params.empty?}
-            if !p_matches.empty?
-              p_matches.first
-            else
-              matches.first
-            end
-          end
-
-          routes.find {|route|
-            route.match(path)
-          }
-        end
-
-        # replaces all param names
-        # e.g. :id in /hogera/:id
-        # with a group to match values
-        def path_re
-          @re ||= Regexp.new @path.gsub(%r{(:[^/?#]+)}, '([^/?#]+)')
+          routes.find {|route| route.match path}
         end
 
         def match(path)
-          # if m = path.match(path_re)
-          #   # e.g. grab the 'id' from '/hogera/:id'
-          #   param_name  = @path[%r{/:([^/?#]+)}, 1]
-          #   # e.g. grab the '123' val from '/hogera/123'
-          #   param_value = m[1]
-          #
-          #   params = param_name.nil? ? {} : {
-          #     param_name => param_value
-          #   }
-          #
-          #   Match.new @method, params
-          # end
+          params = {}
 
-          params    = {}
-          req_parts = path.split('/')
-          if parts.with_index.all? do |part, idx|
-              if m = part.match(%r{:(.+)})
-                name, value = m[1], req_parts[idx]
-                params[name] = value
+          request_parts = split_path(path)
+          parts = request_parts.zip path_parts
+
+          parts_match = parts.all? {|req_part, path_part|
+            if req_part and path_part
+              if param = path_part[%r{:(.+)},1]
+                params[param] = req_part
               else
-                req_parts[idx]
+                path_part == req_part
               end
             end
-            Match.new @method, params
+          }
+
+          if parts_match
+            Match.new method, params
           end
         end
 
-        def self.method_for_path(path)
-          @@routes.find {|route|
-            route.match(path).method
-          }
+      private
+        def path_parts
+          @parts ||= split_path(@path)
+        end
+
+        def split_path(path)
+          path.split('/').reject(&:empty?)         
         end
       end
     end
