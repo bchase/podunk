@@ -28,13 +28,14 @@ class Application < Podunk::App
   Joke.new "Bakers trade bread recipes on a knead-to-know basis.", "Ellie (TLOU)"
 
   route do
-    # get '/'          => 'home'
+    root to: 'home'
+
     get '/jokes'     => 'all_jokes'
     get '/jokes/:id' => 'joke'
   end
 
   def home
-    "Welcome home, #{params['name']}."
+    "<p>Welcome home, #{params['name']}.</p>"
   end
 
   def all_jokes

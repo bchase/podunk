@@ -1,4 +1,5 @@
 require 'podunk/app/router/route'
+
 module Podunk
   class App
     module Router
@@ -25,6 +26,11 @@ module Podunk
         end
 
       private
+        def root(opts={})
+          method = opts[:to]
+          Route.root = method
+        end
+
         def get(opts)
           register_route('GET', opts)
         end

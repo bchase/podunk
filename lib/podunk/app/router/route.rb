@@ -7,10 +7,14 @@ module Podunk
         def self.init_routes!
           @@routes = Hash.new {|h,k| h[k]=[]}
         end
-        def self.routes
-          @@routes
-        end
         init_routes!
+
+        def self.root=(method)
+          @@root = method
+        end
+        def self.root
+          @@root
+        end
 
         attr_accessor :verb, :path, :method
         def initialize(verb, path, method)
@@ -26,6 +30,10 @@ module Podunk
 
         def match(path)
           params = {}
+
+          if path == '/'
+            return Match.new self.class.root, {}
+          end
 
           request_parts = split_path(path)
           parts = request_parts.zip path_parts
