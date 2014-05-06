@@ -6,6 +6,7 @@ module Podunk
 
         @@routes = Hash.new {|h,k| h[k]=[]}
 
+        attr_accessor :verb, :path, :method
         def initialize(verb, path, method)
           @verb, @path, @method = verb, path, method
 
@@ -54,12 +55,9 @@ module Podunk
         base.extend ClassMethods
       end
 
-      # def routes
-      #   self.class.routes
-      # end
-
       def method_for_path
-        Route.for(request.verb, request.path).method
+        route = Route.for(request.verb, request.path)
+        route.method
       end
 
       def body_method_for_route
@@ -74,10 +72,6 @@ module Podunk
         def route(&block)
           yield
         end
-
-        # def routes
-        #   @@routes
-        # end
 
       private
         def get(opts)
