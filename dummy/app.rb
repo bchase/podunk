@@ -28,7 +28,7 @@ class Application < Podunk::App
   Joke.new "Bakers trade bread recipes on a knead-to-know basis.", "Ellie (TLOU)"
 
   route do
-    get '/'          => 'home'
+    # get '/'          => 'home'
     get '/jokes'     => 'all_jokes'
     get '/jokes/:id' => 'joke'
   end
@@ -59,7 +59,16 @@ private
   end
 
   def joke_li(joke)
-    "<li>#{joke.text}</li>"
+    "<li>#{link_to joke.text, joke_path(joke)}</li>"
+  end
+
+  def link_to(text, href)
+    "<a href=\"#{href}\">#{text}</a>"
+  end
+
+  def joke_path(joke)
+    joke_id = joke.is_a?(Fixnum) ? joke : joke.id
+    "/jokes/#{joke_id}"
   end
 
   def joke_div

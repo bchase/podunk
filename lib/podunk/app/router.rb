@@ -13,12 +13,37 @@ module Podunk
           @@routes[verb] << self
         end
 
+        def parts
+          @parts ||= @path.split '/'
+        end
+
+        def degree
+          parts.count
+        end
+
         def self.for(verb, path)
           routes = @@routes[verb]
 
           return if routes.empty?
 
-          routes.find {|route| route.match(path)}
+          matches = routes.map {|route| 
+            route.match(path)
+          }.reject(&:nil?)
+
+          if !routes.empty?
+
+            require 'pry'; binding.pry
+            p_matches = matches.reject {|match| match.params.empty?}
+            if !p_matches.empty?
+              p_matches.first
+            else
+              matches.first
+            end
+          end
+
+          routes.find {|route|
+            route.match(path)
+          }
         end
 
         # replaces all param names
@@ -29,17 +54,29 @@ module Podunk
         end
 
         def match(path)
-          if m = path.match(path_re)
-            # e.g. grab the 'id' from '/hogera/:id'
-            param_name  = @path[%r{/:([^/?#]+)}, 1]
-            # e.g. grab the '123' val from '/hogera/123'
-            param_value = m[1]
+          # if m = path.match(path_re)
+          #   # e.g. grab the 'id' from '/hogera/:id'
+          #   param_name  = @path[%r{/:([^/?#]+)}, 1]
+          #   # e.g. grab the '123' val from '/hogera/123'
+          #   param_value = m[1]
+          #
+          #   params = param_name.nil? ? {} : {
+          #     param_name => param_value
+          #   }
+          #
+          #   Match.new @method, params
+          # end
 
-            params = {
-              param_name => param_value
-            }
-            # require 'pry'; binding.pry
-
+          params    = {}
+          req_parts = path.split('/')
+          if parts.with_index.all? do |part, idx|
+              if m = part.match(%r{:(.+)})
+                name, value = m[1], req_parts[idx]
+                params[name] = value
+              else
+                req_parts[idx]
+              end
+            end
             Match.new @method, params
           end
         end
