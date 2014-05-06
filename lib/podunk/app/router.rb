@@ -1,6 +1,46 @@
 module Podunk
   class App
     module Router
+      class Route
+        Match = Struct.new(:method, :params)
+
+        @@routes = []
+
+        def initialize(path, method)
+          @path, @method = path, method
+          @@routes << self
+        end
+
+        # replaces all param names
+        # e.g. :id in /hogera/:id
+        # with a group to match values
+        def path_re
+          @re ||= Regexp.new @path.gsub(%r{(:[^/?#]+)}, '([^/?#]+)')
+        end
+
+        def match(path)
+          if m = path.match(path_re)
+            # e.g. grab the 'id' from '/hogera/:id'
+            param_name  = @path[%r{/:([^/?#]+)}, 1]
+            # e.g. grab the '123' val from '/hogera/123'
+            param_value = m[1]
+
+            params = {
+              param_name => param_value
+            }
+            # require 'pry'; binding.pry
+
+            Match.new @method, params
+          end
+        end
+
+        def self.method_for_path(path)
+          @@routes.find {|route|
+            route.match(path)
+          }
+        end
+      end
+
       def self.included(base)
         base.extend ClassMethods
       end
@@ -9,8 +49,17 @@ module Podunk
         self.class.routes
       end
 
+      def method_for_path(routes)
+        # register /jokes/:id
+        # params   /jokes/123
+        name  = %r{/:([^/?#]+)}
+        value =
+        [request.path].intern
+      end
+
       def body_method_for_route
-        routes[request.method][request.path].intern
+        routes_for_method = routes[request.method]
+        method_for_path(routes_for_method)
       end
 
       def render_body_for_route
@@ -27,7 +76,7 @@ module Podunk
           @@routes
         end
 
-        private
+      private
         def get(opts)
           register_route('GET', opts)
         end
