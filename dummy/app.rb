@@ -35,13 +35,7 @@ class Application < Podunk::App
   end
 
   def home
-    if name = params['name']
-      text = "Welcome home, #{name}."
-    else
-      text = "Welcome."
-    end
-
-    "<p>#{text}</p>"
+    home_p
   end
 
   def all_jokes
@@ -55,6 +49,16 @@ class Application < Podunk::App
   end
 
 private
+  def home_p
+    if name = params['name']
+      text = "Welcome home, #{name}."
+    else
+      text = "Welcome."
+    end
+
+    "<p>#{text}</p>"
+  end
+
   def jokes_ul
     ul  = "<ul>"
 
