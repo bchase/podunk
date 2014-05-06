@@ -4,11 +4,22 @@ module Podunk
       class Route
         Match = Struct.new(:method, :params)
 
-        @@routes = []
+        @@routes = Hash.new {|h,k| h[k]=[]}
 
-        def initialize(path, method)
-          @path, @method = path, method
-          @@routes << self
+        def initialize(verb, path, method)
+          @verb, @path, @method = verb, path, method
+
+          @@routes[verb] << self
+        end
+
+        def self.for(verb, path)
+          routes = @@routes[verb]
+
+          return if routes.empty?
+
+          @@routes.find {|route|
+            route.match(path)
+          }
         end
 
         # replaces all param names
@@ -36,7 +47,7 @@ module Podunk
 
         def self.method_for_path(path)
           @@routes.find {|route|
-            route.match(path)
+            route.match(path).method
           }
         end
       end
@@ -45,21 +56,16 @@ module Podunk
         base.extend ClassMethods
       end
 
-      def routes
-        self.class.routes
-      end
+      # def routes
+      #   self.class.routes
+      # end
 
-      def method_for_path(routes)
-        # register /jokes/:id
-        # params   /jokes/123
-        name  = %r{/:([^/?#]+)}
-        value =
-        [request.path].intern
+      def method_for_path
+        Route.for(request.verb, request.path).method
       end
 
       def body_method_for_route
-        routes_for_method = routes[request.method]
-        method_for_path(routes_for_method)
+        method_for_path
       end
 
       def render_body_for_route
@@ -68,13 +74,12 @@ module Podunk
 
       module ClassMethods
         def route(&block)
-          @@routes ||= {}
           yield
         end
 
-        def routes
-          @@routes
-        end
+        # def routes
+        #   @@routes
+        # end
 
       private
         def get(opts)
@@ -87,8 +92,7 @@ module Podunk
           path   = opts.keys.first
           method = opts.values.first
 
-          @@routes[verb]     ||= {}
-          @@routes[verb][path] = method
+          Route.new verb, path, method
         end
 
         def check_verb!(verb)
