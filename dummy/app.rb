@@ -4,9 +4,9 @@ class Application < Podunk::App
   class Joke
     @@jokes = []
 
-    attr_accessor :text
-    def initialize(text)
-      @text = text
+    attr_accessor :text, :source
+    def initialize(text, source)
+      @text, @source = text, source
 
       @jokes << self
     end
