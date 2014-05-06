@@ -24,8 +24,8 @@ class Application < Podunk::App
     end
   end
 
-  Joke.new "A book just fell on my head... I only have my shelf to blame."
-  Joke.new "Bakers trade bread recipes on a knead-to-know basis."
+  Joke.new "A book just fell on my head... I only have my shelf to blame.", "Ellie (TLOU)"
+  Joke.new "Bakers trade bread recipes on a knead-to-know basis.", "Ellie (TLOU)"
 
   route do
     get '/'          => 'home'
