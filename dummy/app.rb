@@ -45,7 +45,7 @@ class Application < Podunk::App
   
   def joke
     @joke = Joke.find params['id']
-    joke_div
+    joke_div + link_to('Back', '/jokes')
   end
 
 private
