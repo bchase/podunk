@@ -8,7 +8,7 @@ class Application < Podunk::App
     def initialize(text, source)
       @text, @source = text, source
 
-      @jokes << self
+      @@jokes << self
     end
 
     def id
