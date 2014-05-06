@@ -1,6 +1,34 @@
 module Podunk
   class App
     module Router
+      class Route
+        @@routes = []
+        def initialize(path, method)
+          @method = method
+        @path   = 
+
+          @@routes << self
+        end
+
+        def path_re
+          re = path.gsub %r{(:[^/?#]+)}, '[^/?#]+'
+          Regexp.new re
+        end
+
+        def match(path)
+          if path.match path_re
+            name = %r{/:([^/?#]+)}
+            self.path
+          end
+        end
+
+        def self.method_for_path(path)
+          @@routes.find {|route|
+            route.match(path)
+          }
+        end
+      end
+
       def self.included(base)
         base.extend ClassMethods
       end
@@ -9,8 +37,17 @@ module Podunk
         self.class.routes
       end
 
+      def method_for_path(routes)
+        # register /jokes/:id
+        # params   /jokes/123
+        name  = %r{/:([^/?#]+)}
+        value =
+        [request.path].intern
+      end
+
       def body_method_for_route
-        routes[request.method][request.path].intern
+        routes_for_method = routes[request.method]
+        method_for_path(routes_for_method)
       end
 
       def render_body_for_route
@@ -27,7 +64,7 @@ module Podunk
           @@routes
         end
 
-        private
+      private
         def get(opts)
           register_route('GET', opts)
         end
