@@ -2,23 +2,35 @@ module Podunk
   class App
     module Router
       class Route
-        @@routes = []
-        def initialize(path, method)
-          @method = method
-        @path   = 
+        Match = Struct.new(:method, :params)
 
+        @@routes = []
+
+        def initialize(path, method)
+          @path, @method = path, method
           @@routes << self
         end
 
+        # replaces all param names
+        # e.g. :id in /hogera/:id
+        # with a group to match values
         def path_re
-          re = path.gsub %r{(:[^/?#]+)}, '[^/?#]+'
-          Regexp.new re
+          @re ||= Regexp.new @path.gsub(%r{(:[^/?#]+)}, '([^/?#]+)')
         end
 
         def match(path)
-          if path.match path_re
-            name = %r{/:([^/?#]+)}
-            self.path
+          if m = path.match(path_re)
+            # e.g. grab the 'id' from '/hogera/:id'
+            param_name  = @path[%r{/:([^/?#]+)}, 1]
+            # e.g. grab the '123' val from '/hogera/123'
+            param_value = m[1]
+
+            params = {
+              param_name => param_value
+            }
+            # require 'pry'; binding.pry
+
+            Match.new @method, params
           end
         end
 
