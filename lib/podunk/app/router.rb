@@ -17,9 +17,7 @@ module Podunk
 
           return if routes.empty?
 
-          @@routes.find {|route|
-            route.match(path)
-          }
+          routes.find {|route| route.match(path)}
         end
 
         # replaces all param names
