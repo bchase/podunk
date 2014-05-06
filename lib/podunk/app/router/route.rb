@@ -2,8 +2,6 @@ module Podunk
   class App
     module Router
       class Route
-        Match = Struct.new(:method, :params)
-
         def self.init_routes!
           @@routes = Hash.new {|h,k| h[k]=[]}
         end
@@ -16,7 +14,8 @@ module Podunk
           @@root
         end
 
-        attr_accessor :verb, :path, :method
+        attr_reader :verb, :path, :method
+        attr_accessor :params
         def initialize(verb, path, method)
           @verb, @path, @method = verb, path, method
 
@@ -25,14 +24,14 @@ module Podunk
 
         def self.for(verb, path)
           routes = @@routes[verb]
-          routes.find {|route| route.match path}
+          route  = routes.find {|route| route.match path}
         end
 
         def match(path)
           params = {}
 
           if path == '/'
-            return Match.new self.class.root, {}
+            return OpenStruct.new method: self.class.root
           end
 
           request_parts = split_path(path)
@@ -49,7 +48,7 @@ module Podunk
           }
 
           if parts_match
-            Match.new method, params
+            self.params = params
           end
         end
 

@@ -16,7 +16,7 @@ class Application < Podunk::App
     end
 
     def self.find(id)
-      all.find {|joke| joke.id == id}
+      all.find {|joke| joke.id == id.to_i}
     end
 
     def self.all
@@ -44,7 +44,7 @@ class Application < Podunk::App
   end
   
   def joke
-    @joke = Joke.find params[:id]
+    @joke = Joke.find params['id']
     joke_div
   end
 

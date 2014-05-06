@@ -9,6 +9,7 @@ module Podunk
 
       def method_for_path
         route = Route.for(request.verb, request.path)
+        request.params.merge! route.params
         route.method
       end
 
